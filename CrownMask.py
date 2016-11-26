@@ -2,7 +2,7 @@ import cv2
 
 def loadImage():
     global raw_image
-    raw_image = cv2.imread('images/Snapchat/5.png', cv2.IMREAD_UNCHANGED)
+    raw_image = cv2.imread('images/crown.png', cv2.IMREAD_UNCHANGED)
 
     return raw_image
 
