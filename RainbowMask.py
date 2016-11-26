@@ -5,8 +5,8 @@ import cv2
 def loadImage():
     global image
     # Load our overlay image: mustache.png
-    image = cv2.imread('images/mustache.png', -1)
-    # image = cv2.imread('images/Snapchat/3.png', cv2.IMREAD_UNCHANGED)
+    # image = cv2.imread('images/mustache.png', -1)
+    image = cv2.imread('images/Snapchat/4.png', cv2.IMREAD_UNCHANGED)
 
     # print imgMustache
 
@@ -32,8 +32,8 @@ def resizeMask(nx, nw):
 
 
 def getWidthOfNose(shape):
-    nx = shape.part(31).x
-    nw = shape.part(35).x
+    nx = shape.part(60).x
+    nw = shape.part(54).x
     return nx, nw
 
 def getRegionOfInterest(shape):
@@ -42,8 +42,8 @@ def getRegionOfInterest(shape):
     # # The mask should be proportionate to size of face
     maskWidth, maskHeight = resizeMask(nx, nw)
     # Getting dimensions of region of interest
-    x1 = shape.part(33).x - (maskWidth / 2)
-    x2 = shape.part(33).x + (maskWidth / 2)
-    y1 = shape.part(33).y - (maskHeight / 2) + 15
-    y2 = shape.part(33).y + (maskHeight / 2) + 15
+    x1 = shape.part(52).x - (maskWidth / 2)
+    x2 = shape.part(52).x + (maskWidth / 2)
+    y1 = shape.part(52).y - (maskHeight / 2) + 100
+    y2 = shape.part(52).y + (maskHeight / 2) + 100
     return x1, x2, y1, y2
