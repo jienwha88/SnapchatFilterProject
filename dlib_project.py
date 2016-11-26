@@ -1,101 +1,131 @@
-# Import required modules
 import cv2
 import dlib
+import sys
 
 import MustacheMask
 import DogMask
 import RainbowMask
 import CrownMask
 
+# Prompts user to select a mask
+def selectMask():
+    print "Select image for mask: "
+    print "\t1) Mustache"
+    print "\t2) Dog"
+    print "\t3) Rainbow"
+    print "\t4) Crown"
+    print "\tq to exit"
+    while(True):
+        input = raw_input("Selection: ")
+        if input == '1':
+            return MustacheMask
+        elif input == '2':
+            return DogMask
+        elif input == '3':
+            return RainbowMask
+        elif input == '4':
+            return CrownMask
+        elif input == 'q':
+            sys.exit(0)
+        else:
+            print "Please enter a valid choice"
+
+# Adds the mask to the frame
 def addMaskToFrame():
-    # roi_bg contains the original image only where the mustache is not
-    # in the region that is the size of the mustache.
-    roi_bg = cv2.bitwise_and(roi, roi, mask=resized_mask_inv)
+    # Keep background the same by using the mask inverse
+    background = cv2.bitwise_and(roi, roi, mask=resized_mask_inv)
 
-    # roi_fg contains the image of the mustache only where the mustache is
-    roi_fg = cv2.bitwise_and(resized_image, resized_image, mask=resized_mask)
+    # Mask out everything but the image
+    masked_image = cv2.bitwise_and(resized_image, resized_image, mask=resized_mask)
 
-    # join the roi_bg and roi_fg
-    dst = cv2.add(roi_bg, roi_fg)
+    # Add image to background
+    merged_roi = cv2.add(background, masked_image)
 
-    # place the joined image, saved to dst back over the original image
-    # roi_color[y1:y2, x1:x2] = dst
-    frame[y1:y2, x1:x2] = dst
+    # Replace the frame with the merged region of interest
+    frame[y1:y2, x1:x2] = merged_roi
 
 
-abstractMask = MustacheMask
-# abstractMask = DogMask
-# abstractMask = RainbowMask
-# abstractMask = CrownMask
+# Setup video capture via webcam
+video_capture = cv2.VideoCapture(0)
+
+# Use the dlib frontal face detector
+dlib_detector = dlib.get_frontal_face_detector()
+
+# Face Detector file, downloaded from: "http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2"
+dlib_predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
 
 
-image, orig_mask, orig_mask_inv = abstractMask.loadImage()
+# Prompts user to enter mask
+abstractMask = selectMask()
 
-# Set up some required objects
-video_capture = cv2.VideoCapture(0)  # Webcam object
-detector = dlib.get_frontal_face_detector()  # Face detector
-predictor = dlib.shape_predictor(
-    "shape_predictor_68_face_landmarks.dat")  # Landmark identifier. Set the filename to whatever you named the downloaded file
+# Loads image based on mask chosen
+raw_image = abstractMask.loadImage()
 
+# Creates the mask
+orig_mask = raw_image[:, :, 3]
+
+# Creates the mask inverse
+orig_mask_inv = cv2.bitwise_not(orig_mask)
+
+# Converting image into BGR
+image = raw_image[:, :, 0:3]
 
 while True:
-    ret, frame = video_capture.read()
+    # Start capturing frames
+    retval, frame = video_capture.read()
+
+    # Mirror Frame
     frame = cv2.flip(frame, 1)
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+    # Gray scale used for face detection
+    gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+    # Creating Contrast Limited Adaptive Histogram Equalization for improved face recognition (equal lighting)
     clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
-    clahe_image = clahe.apply(gray)
+    clahe_image = clahe.apply(gray_frame)
 
-    detections = detector(clahe_image, 1)  # Detect the faces in the image
+    # Use dlib detector to detect faces
+    detections = dlib_detector(clahe_image, 1)
 
-    for k, d in enumerate(detections):  # For each detected face
-
-        shape = predictor(clahe_image, d)  # Get coordinates
+    for k, d in enumerate(detections):
+        # Get coordinates of key facial features
+        key_facial_features = dlib_predictor(clahe_image, d)
 
         # Uncomment for debugging
         # for i in range(1, 68):  # There are 68 landmark points on each face
         #     cv2.circle(frame, (shape.part(i).x, shape.part(i).y), 1, (0, 0, 255),
         #                thickness=2)  # For each point, draw a red circle with thickness2 on the original frame
-        # cv2.circle(frame, (shape.part(33).x, shape.part(33).y), 20, (0, 0, 255),
-        #            thickness=2)
-        #
-        # cv2.circle(frame, (shape.part(31).x, shape.part(31).y), 20, (0, 0, 255),
-        #            thickness=2)
-        # cv2.circle(frame, (shape.part(35).x, shape.part(35).y), 20, (0, 0, 255),
-        #            thickness=2)
-
-        # mm.getMask(frame, shape)
 
 
-        # cv2.circle(frame, (shape.part(52).x, shape.part(52).y), 20, (0, 0, 255),
-        #            thickness=2)
-        # cv2.circle(frame, (shape.part(54).x, shape.part(54).y), 20, (0, 0, 255),
-        #            thickness=2)
+        # Get coordinates of region of interest
+        # Region of Interest (roi) is the region that includes the mask and background
+        x1, x2, y1, y2 = abstractMask.getRegionOfInterest(key_facial_features)
 
-
-
-        x1, x2, y1, y2 = abstractMask.getRegionOfInterest(shape)
-
-        # Re-calculate the width and height of the mustache image
+        # Get shape or ROI
         roi_width = x2 - x1
         roi_height = y2 - y1
 
-        # Re-size the original image and the masks to the mustache sizes calculated above
+        # Resizing the images and mask based on ROI
         resized_image = cv2.resize(image, (roi_width, roi_height), interpolation=cv2.INTER_AREA)
         resized_mask = cv2.resize(orig_mask, (roi_width, roi_height), interpolation=cv2.INTER_AREA)
         resized_mask_inv = cv2.resize(orig_mask_inv, (roi_width, roi_height), interpolation=cv2.INTER_AREA)
 
-        # take ROI for mustache from background equal to size of mustache image
+        # Create ROI
         roi = frame[y1:y2, x1:x2]
 
         try:
+            # Combining the mask to the frame
             addMaskToFrame()
         except:
             # In case of exceptions, just skip the frame and do not display mask
             print 'Invalid values, do not add mask'
             continue
 
+    # Displays the new frame
+    cv2.imshow("image", frame)
 
-    cv2.imshow("image", frame)  # Display the frame
-
-    if cv2.waitKey(1) & 0xFF == ord('q'):  # Exit program when the user presses 'q'
+    # Exit program when the user presses 'q'
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        video_capture.release()
+        cv2.destroyAllWindows()
         break

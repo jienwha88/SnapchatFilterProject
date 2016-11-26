@@ -1,4 +1,4 @@
 shape_predictor_68_face_landmarks.dat
 .idea/
 .DS_Store
-.pyc
+*.pyc
