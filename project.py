@@ -7,7 +7,6 @@ import DogMask
 import RainbowMask
 import CrownMask
 
-# Prompts user to select a mask
 def selectMask():
     print "Select image for mask: "
     print "\t1) Mustache"
@@ -30,7 +29,7 @@ def selectMask():
         else:
             print "Please enter a valid choice"
 
-# Adds the mask to the frame
+
 def addMaskToFrame():
     # Keep background the same by using the mask inverse
     background = cv2.bitwise_and(roi, roi, mask=resized_mask_inv)
@@ -91,11 +90,9 @@ while True:
         # Get coordinates of key facial features
         key_facial_features = dlib_predictor(clahe_image, d)
 
-        # Uncomment for debugging
-        # for i in range(1, 68):  # There are 68 landmark points on each face
-        #     cv2.circle(frame, (shape.part(i).x, shape.part(i).y), 1, (0, 0, 255),
-        #                thickness=2)  # For each point, draw a red circle with thickness2 on the original frame
-
+        # Show each of the 68 key facial features "https://i.stack.imgur.com/05uIT.jpg"
+        # for i in range(1, 68):
+        #     cv2.circle(frame, (key_facial_features.part(i).x, shape.part(i).y), 1, (255, 0, 0), thickness=2)
 
         # Get coordinates of region of interest
         # Region of Interest (roi) is the region that includes the mask and background
