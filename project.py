@@ -2,6 +2,8 @@ import cv2
 import dlib
 import sys
 
+from PIL import Image
+
 import MustacheMask
 import DogMask
 import RainbowMask
@@ -56,6 +58,8 @@ dlib_predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
 
 # Prompts user to enter mask
 abstractMask = selectMask()
+# abstractMask = DogMask
+
 
 # Loads image based on mask chosen
 raw_image = abstractMask.loadImage()
@@ -68,6 +72,16 @@ orig_mask_inv = cv2.bitwise_not(orig_mask)
 
 # Converting image into BGR
 image = raw_image[:, :, 0:3]
+
+# masked_image = cv2.bitwise_and(image, image, mask=orig_mask)
+#
+# img = Image.fromarray(image)
+# img.show()
+#
+# img = Image.fromarray(masked_image)
+# img.show()
+
+print 'Starting webcam feed'
 
 while True:
     # Start capturing frames
@@ -89,10 +103,6 @@ while True:
     for k, d in enumerate(detections):
         # Get coordinates of key facial features
         key_facial_features = dlib_predictor(clahe_image, d)
-
-        # Show each of the 68 key facial features "https://i.stack.imgur.com/05uIT.jpg"
-        # for i in range(1, 68):
-        #     cv2.circle(frame, (key_facial_features.part(i).x, shape.part(i).y), 1, (255, 0, 0), thickness=2)
 
         # Get coordinates of region of interest
         # Region of Interest (roi) is the region that includes the mask and background
