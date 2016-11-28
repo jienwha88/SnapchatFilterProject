@@ -1,4 +1,5 @@
 import cv2
+import Constants as const
 
 def loadImage():
     global raw_image
@@ -16,8 +17,8 @@ def resizeMask(nx, nw):
 
 
 def getWidthOfNose(shape):
-    nx = shape.part(31).x
-    nw = shape.part(35).x
+    nx = shape.part(const.NOSE_LEFT).x
+    nw = shape.part(const.NOSE_RIGHT).x
 
     return nx, nw
 
@@ -29,9 +30,9 @@ def getRegionOfInterest(shape):
     mask_width, mask_height = resizeMask(nx, nw)
 
     # Getting dimensions of region of interest
-    x1 = shape.part(33).x - (mask_width / 2)
-    x2 = shape.part(33).x + (mask_width / 2)
-    y1 = shape.part(33).y - (mask_height / 2) + 15
-    y2 = shape.part(33).y + (mask_height / 2) + 15
+    x1 = shape.part(const.NOSE).x - (mask_width / 2)
+    x2 = shape.part(const.NOSE).x + (mask_width / 2)
+    y1 = shape.part(const.NOSE).y - (mask_height / 2) + 15
+    y2 = shape.part(const.NOSE).y + (mask_height / 2) + 15
 
     return x1, x2, y1, y2

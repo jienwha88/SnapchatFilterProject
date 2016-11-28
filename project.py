@@ -2,12 +2,11 @@ import cv2
 import dlib
 import sys
 
-from PIL import Image
-
 import MustacheMask
 import DogMask
 import RainbowMask
 import CrownMask
+import VendettaMask
 
 def selectMask():
     print "Select image for mask: "
@@ -15,6 +14,7 @@ def selectMask():
     print "\t2) Dog"
     print "\t3) Rainbow"
     print "\t4) Crown"
+    print "\t5) Vendetta"
     print "\tq to exit"
     while(True):
         input = raw_input("Selection: ")
@@ -26,6 +26,8 @@ def selectMask():
             return RainbowMask
         elif input == '4':
             return CrownMask
+        elif input == '5':
+            return VendettaMask
         elif input == 'q':
             sys.exit(0)
         else:
@@ -40,7 +42,7 @@ def addMaskToFrame():
     masked_image = cv2.bitwise_and(resized_image, resized_image, mask=resized_mask)
 
     # Add image to background
-    merged_roi = cv2.add(background, masked_image)
+    merged_roi = background + masked_image
 
     # Replace the frame with the merged region of interest
     frame[y1:y2, x1:x2] = merged_roi
@@ -50,10 +52,10 @@ def addMaskToFrame():
 video_capture = cv2.VideoCapture(0)
 
 # Use the dlib frontal face detector
-dlib_detector = dlib.get_frontal_face_detector()
+face_detector = dlib.get_frontal_face_detector()
 
 # Face Detector file, downloaded from: "http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2"
-dlib_predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
+feature_predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
 
 
 # Prompts user to enter mask
@@ -73,14 +75,6 @@ orig_mask_inv = cv2.bitwise_not(orig_mask)
 # Converting image into BGR
 image = raw_image[:, :, 0:3]
 
-# masked_image = cv2.bitwise_and(image, image, mask=orig_mask)
-#
-# img = Image.fromarray(image)
-# img.show()
-#
-# img = Image.fromarray(masked_image)
-# img.show()
-
 print 'Starting webcam feed'
 
 while True:
@@ -98,15 +92,15 @@ while True:
     clahe_image = clahe.apply(gray_frame)
 
     # Use dlib detector to detect faces
-    detections = dlib_detector(clahe_image, 1)
+    faces = face_detector(clahe_image, 1)
 
-    for k, d in enumerate(detections):
+    for k, d in enumerate(faces):
         # Get coordinates of key facial features
-        key_facial_features = dlib_predictor(clahe_image, d)
+        facial_features = feature_predictor(clahe_image, d)
 
         # Get coordinates of region of interest
         # Region of Interest (roi) is the region that includes the mask and background
-        x1, x2, y1, y2 = abstractMask.getRegionOfInterest(key_facial_features)
+        x1, x2, y1, y2 = abstractMask.getRegionOfInterest(facial_features)
 
         # Get shape or ROI
         roi_width = x2 - x1

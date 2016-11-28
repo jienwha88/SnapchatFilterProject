@@ -3,14 +3,14 @@ import Constants as const
 
 def loadImage():
     global raw_image
-    raw_image = cv2.imread('images/dog.png', cv2.IMREAD_UNCHANGED)
+    raw_image = cv2.imread('images/vendetta.png', cv2.IMREAD_UNCHANGED)
 
     return raw_image
 
 
 def resizeMask(x, w, y, h):
-    mask_width = int((w - x) * 1.5)
-    mask_height = int((h - y) * 2.5)
+    mask_width = w - x
+    mask_height = int((h - y) * 1.5)
 
     return mask_width, mask_height
 

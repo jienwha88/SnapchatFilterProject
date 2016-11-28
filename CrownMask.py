@@ -1,4 +1,5 @@
 import cv2
+import Constants as const
 
 def loadImage():
     global raw_image
@@ -8,7 +9,7 @@ def loadImage():
 
 
 def resizeMask(x, w):
-    maskWidth = w - x + 100
+    maskWidth = int((w - x) * 1.5)
     origMaskHeight, origMaskWidth = raw_image.shape[:2]
     maskHeight = maskWidth * origMaskHeight / origMaskWidth
 
@@ -16,10 +17,10 @@ def resizeMask(x, w):
 
 
 def getFaceDimensions(shape):
-    x = shape.part(1).x
-    w = shape.part(15).x
-    y = shape.part(20).y
-    h = shape.part(8).y
+    x = shape.part(const.CHEEK_LEFT).x
+    w = shape.part(const.CHEEK_RIGHT).x
+    y = shape.part(const.EYEBROW_TOP).y
+    h = shape.part(const.CHIN).y
 
     return x, w, y, h
 
@@ -30,10 +31,12 @@ def getRegionOfInterest(shape):
     # # The mask should be proportionate to size of face
     maskWidth, maskHeight = resizeMask(x, w)
 
+    distance = int((shape.part(const.CHIN).y - shape.part(const.NOSE_TOP).y) * 1.5)
+
     # Getting dimensions of region of interest
-    x1 = shape.part(29).x - (maskWidth / 2)
-    x2 = shape.part(29).x + (maskWidth / 2)
-    y1 = shape.part(29).y - (maskHeight / 2) - 200
-    y2 = shape.part(29).y + (maskHeight / 2) - 200
+    x1 = shape.part(const.NOSE_TOP).x - (maskWidth / 2)
+    x2 = shape.part(const.NOSE_TOP).x + (maskWidth / 2)
+    y1 = shape.part(const.NOSE_TOP).y - (maskHeight / 2) - distance
+    y2 = shape.part(const.NOSE_TOP).y + (maskHeight / 2) - distance
 
     return x1, x2, y1, y2
