@@ -4,12 +4,6 @@
 2) OpenCV  
 3) Dlib
 
-##Result!
-![Mustache Screenshot](https://github.com/jienwha88/SnapchatFilterProject/blob/master/result-screenshot.png)
-
-Video:
-https://drive.google.com/open?id=0B-azLmpma_FjaDJBNU85YUNhWE0
-
 ## Setups
 1) Make sure you have Python, OpenCV and Dlib installed.  
 Dlib can be installed by following the instructions found here: https://github.com/davisking/dlib  
@@ -24,3 +18,9 @@ Add the file to your project folder.
 4) Enjoy the filters! Press 'q' to close the window.
 
 Note: If you are unable to see the images added to the frames, take a step away from the camera. The image mask will only be added if there is enough room for the frame to add the image mask.
+
+## Result
+Video:  
+https://drive.google.com/open?id=0B-azLmpma_FjaDJBNU85YUNhWE0  
+
+![Mustache Screenshot](https://github.com/jienwha88/SnapchatFilterProject/blob/master/result-screenshot.png)  
