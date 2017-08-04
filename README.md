@@ -1,10 +1,16 @@
-# Face Filter
+# Snapchat Face Filter
 ## Technology Stack
 1) Python  
 2) OpenCV  
 3) Dlib
 
-## Setup
+##Result!
+![Mustache Screenshot](https://github.com/jienwha88/SnapchatFilterProject/blob/master/result-screenshot.png)
+
+Video:
+https://drive.google.com/open?id=0B-azLmpma_FjaDJBNU85YUNhWE0
+
+## Setups
 1) Make sure you have Python, OpenCV and Dlib installed.  
 Dlib can be installed by following the instructions found here: https://github.com/davisking/dlib  
 2) Download the trained face shape predictor from:
